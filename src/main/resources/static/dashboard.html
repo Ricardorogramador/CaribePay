@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg">
+
+<div class="container">
+
+    <div class="header">
+        <h2>Hola 👋</h2>
+        <button onclick="logout()" class="btn-logout">Salir</button>
+    </div>
+
+    <div class="balance-card">
+        <p>Saldo disponible</p>
+        <h1 id="saldo">$ 0</h1>
+    </div>
+
+    <div class="card">
+        <h3>Enviar dinero</h3>
+
+        <form id="transaccionForm">
+            <input type="email" id="destinatario" placeholder="Email destinatario" required>
+            <input type="number" id="monto" step="1" value="1000" min="1" required>
+            <input type="text" id="descripcion" placeholder="Descripción (opcional)">
+            <button class="btn-primary" type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Movimientos</h3>
+        <button class="btn-secondary" type="button" onclick="cargarTransacciones()">Actualizar</button>
+        <ul id="listaTransacciones"></ul>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+body.bg {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a0033, #4b0082);
+    color: white;
+}
+
+/* CARD */
+.card {
+    background: #2a004d;
+    padding: 25px;
+    border-radius: 20px;
+    width: 300px;
+    margin: 40px auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* CONTAINER */
+.container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO */
+.logo {
+    text-align: center;
+    color: #ff00aa;
+}
+
+/* INPUTS */
+input {
+    width: 92%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background: #3a0066;
+    color: white;
+}
+
+/* BOTONES */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #ff00aa;
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #ff00aa;
+    color: #ff00aa;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-logout {
+    background: red;
+    border: none;
+    padding: 8px;
+    border-radius: 10px;
+    color: white;
+}
+
+/* BALANCE */
+.balance-card {
+    background: #ff00aa;
+    padding: 20px;
+    border-radius: 20px;
+    margin: 20px 0;
+    text-align: center;
+    color: white;
+}
+
+/* LISTA */
+.item {
+    background: #3a0066;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+}
+
+/* LINKS */
+.link {
+    text-align: center;
+}
+
+a {
+    color: #ff00aa;
+}
