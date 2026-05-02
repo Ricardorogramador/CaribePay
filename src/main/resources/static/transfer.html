@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>CaribePay | Enviar dinero</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app">
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark sm">C</div>
+            <div class="sidebar-brand-text">
+                <div class="sidebar-title">CaribePay</div>
+                <div class="sidebar-subtitle">Wallet</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <a class="nav-item" href="dashboard.html">Dashboard</a>
+            <a class="nav-item active" href="transfer.html">Enviar dinero</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-ghost w-full" id="logoutBtn">Cerrar sesión</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h2 class="page-title">Enviar dinero</h2>
+                <p class="page-subtitle">Transferencia rápida</p>
+            </div>
+
+            <div class="topbar-right">
+                <a class="btn btn-soft" href="dashboard.html">Volver</a>
+            </div>
+        </header>
+
+        <section class="grid">
+            <div class="card span-2">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Nueva transacción</div>
+                        <div class="card-muted">Envía dinero por email</div>
+                    </div>
+                </div>
+
+                <form id="transaccionForm" class="form form-wide">
+                    <div class="row">
+                        <div class="field">
+                            <label class="label" for="destinatario">Email destinatario</label>
+                            <input class="input" type="email" id="destinatario" placeholder="destino@correo.com" required />
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="monto">Monto</label>
+                            <input class="input" type="number" id="monto" step="1" min="1" value="1000" required />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="descripcion">Descripción (opcional)</label>
+                        <input class="input" type="text" id="descripcion" placeholder="Ej: Pago cena" />
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" type="submit">Enviar</button>
+                        <button class="btn btn-ghost" type="button" id="prefillBtn">Ejemplo</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Tu saldo</div>
+                        <div class="card-muted">Antes de enviar</div>
+                    </div>
+                </div>
+
+                <div class="balance-amount smaller" id="saldo">$ 0</div>
+                <div class="tiny muted">Se actualiza automáticamente.</div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

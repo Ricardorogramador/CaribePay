@@ -1,13 +1,11 @@
 package ricardo.estudio.caribepay.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import ricardo.estudio.caribepay.dtos.UsuarioResponseDTO;
 import ricardo.estudio.caribepay.models.Usuario;
-import ricardo.estudio.caribepay.services.JwtService;
 import ricardo.estudio.caribepay.services.UsuarioService;
 
 import java.util.Optional;
@@ -17,65 +15,53 @@ import java.util.Optional;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
-    @Autowired
-    private JwtService jwtService;
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     @GetMapping("/perfil")
     public ResponseEntity<UsuarioResponseDTO> obtenerPerfil(Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
+        String email = authentication.getName();
+        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
 
-            if (usuario.isPresent()) {
-                UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
-                return ResponseEntity.ok(response);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+        if (usuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
         }
+
+        UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable String id) {
-        try {
-            Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorId(id);
+        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorId(id);
 
-            if (usuario.isPresent()) {
-                UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
-                return ResponseEntity.ok(response);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+        if (usuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
         }
+
+        UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/agregar-saldo/{monto}")
-    public ResponseEntity<?> agregarSaldo(@PathVariable Double monto, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
-
-            if (usuario.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Usuario no encontrado");
-            }
-
-            Double nuevoSaldo = usuario.get().getSaldo() + monto;
-            usuarioService.actualizarSaldo(usuario.get().getId(), nuevoSaldo);
-
-            return ResponseEntity.ok("Saldo agregado exitosamente. Nuevo saldo: " + nuevoSaldo);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error interno del servidor");
+    public ResponseEntity<String> agregarSaldo(@PathVariable Double monto, Authentication authentication) {
+        if (monto == null || monto <= 0) {
+            throw new IllegalArgumentException("Monto inválido");
         }
+
+        String email = authentication.getName();
+        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
+
+        if (usuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Double nuevoSaldo = usuario.get().getSaldo() + monto;
+        usuarioService.actualizarSaldo(usuario.get().getId(), nuevoSaldo);
+
+        return ResponseEntity.ok("Saldo agregado exitosamente. Nuevo saldo: " + nuevoSaldo);
     }
 }

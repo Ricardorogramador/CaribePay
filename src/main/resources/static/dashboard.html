@@ -1,41 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>CaribePay | Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg">
+<body class="app">
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark sm">C</div>
+            <div class="sidebar-brand-text">
+                <div class="sidebar-title">CaribePay</div>
+                <div class="sidebar-subtitle">Wallet</div>
+            </div>
+        </div>
 
-<div class="container">
+        <nav class="nav">
+            <a class="nav-item active" href="dashboard.html">Dashboard</a>
+            <a class="nav-item" href="transfer.html">Enviar dinero</a>
+        </nav>
 
-    <div class="header">
-        <h2>Hola 👋</h2>
-        <button onclick="logout()" class="btn-logout">Salir</button>
-    </div>
+        <div class="sidebar-footer">
+            <button class="btn btn-ghost w-full" id="logoutBtn">Cerrar sesión</button>
+        </div>
+    </aside>
 
-    <div class="balance-card">
-        <p>Saldo disponible</p>
-        <h1 id="saldo">$ 0</h1>
-    </div>
+    <!-- Main -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h2 class="page-title">Resumen</h2>
+                <p class="page-subtitle" id="welcomeText">Bienvenido</p>
+            </div>
 
-    <div class="card">
-        <h3>Enviar dinero</h3>
+            <div class="topbar-right">
+                <button class="btn btn-soft" id="refreshBtn">Actualizar</button>
+            </div>
+        </header>
 
-        <form id="transaccionForm">
-            <input type="email" id="destinatario" placeholder="Email destinatario" required>
-            <input type="number" id="monto" step="1" value="1000" min="1" required>
-            <input type="text" id="descripcion" placeholder="Descripción (opcional)">
-            <button class="btn-primary" type="submit">Enviar</button>
-        </form>
-    </div>
+        <section class="grid">
+            <!-- Balance -->
+            <div class="card balance">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Saldo disponible</div>
+                        <div class="card-muted">Tu dinero actual</div>
+                    </div>
+                    <span class="pill pill-green">Activo</span>
+                </div>
 
-    <div class="card">
-        <h3>Movimientos</h3>
-        <button class="btn-secondary" type="button" onclick="cargarTransacciones()">Actualizar</button>
-        <ul id="listaTransacciones"></ul>
-    </div>
+                <div class="balance-amount" id="saldo">$ 0</div>
 
+                <div class="actions">
+                    <a class="btn btn-primary" href="transfer.html">Enviar</a>
+                    <button class="btn btn-soft" id="addSaldoBtn">Recargar</button>
+                </div>
+
+                <div class="tiny muted">
+                    La recarga es para pruebas (endpoint agregar saldo).
+                </div>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Actividad</div>
+                        <div class="card-muted">Últimos movimientos</div>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">Movimientos</div>
+                        <div class="stat-value" id="movCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Enviadas</div>
+                        <div class="stat-value" id="sentCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Recibidas</div>
+                        <div class="stat-value" id="recvCount">0</div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="segmented">
+                    <button class="seg-btn active" data-filter="all">Todo</button>
+                    <button class="seg-btn" data-filter="sent">Enviadas</button>
+                    <button class="seg-btn" data-filter="received">Recibidas</button>
+                </div>
+            </div>
+
+            <!-- Recent transactions -->
+            <div class="card span-2">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Movimientos recientes</div>
+                        <div class="card-muted">Historial de transacciones</div>
+                    </div>
+                    <span class="pill">Ordenado por fecha</span>
+                </div>
+
+                <ul class="tx-list" id="listaTransacciones"></ul>
+
+                <div class="empty muted" id="emptyTx" style="display:none;">
+                    Sin movimientos todavía.
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="app.js"></script>

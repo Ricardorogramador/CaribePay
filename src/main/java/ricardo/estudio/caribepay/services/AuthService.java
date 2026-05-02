@@ -1,9 +1,8 @@
 package ricardo.estudio.caribepay.services;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import ricardo.estudio.caribepay.dtos.AuthResponseDTO;
 import ricardo.estudio.caribepay.dtos.LoginDTO;
 import ricardo.estudio.caribepay.dtos.RegistroDTO;
@@ -14,14 +13,15 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthService(UsuarioService usuarioService, JwtService jwtService, PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public AuthResponseDTO registrar(RegistroDTO registroDTO) {
         Usuario usuario = usuarioService.registrarUsuario(registroDTO);
@@ -38,11 +38,11 @@ public class AuthService {
         Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(loginDTO.getEmail());
 
         if (usuario.isEmpty()) {
-            throw new RuntimeException("Email o contraseña incorrectos");
+            throw new IllegalArgumentException("Email o contraseña incorrectos");
         }
 
         if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.get().getPassword())) {
-            throw new RuntimeException("Email o contraseña incorrectos");
+            throw new IllegalArgumentException("Email o contraseña incorrectos");
         }
 
         String token = jwtService.generarToken(usuario.get().getEmail());
