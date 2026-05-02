@@ -1,25 +1,33 @@
 package ricardo.estudio.caribepay.dtos;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class TransaccionDTO {
 
-    @NotBlank(message = "El email del receptor no puede estar vacío")
-    @Email(message = "El email debe ser válido")
-    private String emailDestino;
+    @NotBlank(message = "El teléfono destino es obligatorio")
+    private String telefonoDestino;
 
-    @NotNull(message = "El monto no puede estar vacío")
-    @DecimalMin(value = "0.01", message = "El monto debe ser mayor a 0")
+    @NotNull(message = "El monto es obligatorio")
+    @Min(value = 1, message = "El monto debe ser mayor a 0")
     private Double monto;
 
     private String descripcion;
+
+    public TransaccionDTO() {}
+
+    public TransaccionDTO(String telefonoDestino, Double monto, String descripcion) {
+        this.telefonoDestino = telefonoDestino;
+        this.monto = monto;
+        this.descripcion = descripcion;
+    }
+
+    public String getTelefonoDestino() { return telefonoDestino; }
+    public Double getMonto() { return monto; }
+    public String getDescripcion() { return descripcion; }
+
+    public void setTelefonoDestino(String telefonoDestino) { this.telefonoDestino = telefonoDestino; }
+    public void setMonto(Double monto) { this.monto = monto; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 }

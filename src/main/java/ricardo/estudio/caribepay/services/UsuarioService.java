@@ -1,7 +1,5 @@
 package ricardo.estudio.caribepay.services;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ricardo.estudio.caribepay.dtos.RegistroDTO;
@@ -15,19 +13,30 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PhoneService phoneService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, PhoneService phoneService) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.phoneService = phoneService;
+    }
 
     public Usuario registrarUsuario(RegistroDTO registroDTO) {
-        if (usuarioRepository.findByEmail(registroDTO.getEmail()).isPresent()) {
-            throw new RuntimeException("El email ya está registrado");
+        String email = registroDTO.getEmail().trim().toLowerCase();
+        String telefonoNormalizado = phoneService.normalizarCO(registroDTO.getTelefono());
+
+        if (usuarioRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+        if (usuarioRepository.findByTelefono(telefonoNormalizado).isPresent()) {
+            throw new IllegalArgumentException("El teléfono ya está registrado");
         }
 
         Usuario usuario = new Usuario();
-        usuario.setEmail(registroDTO.getEmail());
+        usuario.setEmail(email);
+        usuario.setTelefono(telefonoNormalizado);
         usuario.setPassword(passwordEncoder.encode(registroDTO.getPassword()));
         usuario.setSaldo(0.0);
         usuario.setFechaCreacion(LocalDateTime.now());
@@ -36,17 +45,23 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> obtenerUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+        if (email == null) return Optional.empty();
+        return usuarioRepository.findByEmail(email.trim().toLowerCase());
     }
 
     public Optional<Usuario> obtenerUsuarioPorId(String id) {
         return usuarioRepository.findById(id);
     }
 
+    public Optional<Usuario> obtenerUsuarioPorTelefonoNormalizado(String telefonoNormalizado) {
+        return usuarioRepository.findByTelefono(telefonoNormalizado);
+    }
+
     public UsuarioResponseDTO convertirAResponse(Usuario usuario) {
         return new UsuarioResponseDTO(
                 usuario.getId(),
                 usuario.getEmail(),
+                usuario.getTelefono(),
                 usuario.getSaldo(),
                 usuario.getFechaCreacion()
         );
@@ -58,7 +73,7 @@ public class UsuarioService {
             usuario.get().setSaldo(nuevoSaldo);
             usuarioRepository.save(usuario.get());
         } else {
-            throw new RuntimeException("Usuario no encontrado");
+            throw new IllegalArgumentException("Usuario no encontrado");
         }
     }
 }
