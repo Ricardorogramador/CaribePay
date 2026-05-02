@@ -52,14 +52,13 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
-                                "/index.html",
-                                "/registro.html",
-                                "/dashboard.html",
-                                "/styles.css",
-                                "/app.js",
+                                "/*.html",
+                                "/*.css",
+                                "/*.js",
                                 "/favicon.ico",
                                 "/assets/**",
-                                "/api/auth/**"
+                                "/api/auth/**",
+                                "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

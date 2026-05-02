@@ -44,7 +44,6 @@ function logout() {
     redirectTo("index.html");
 }
 
-// Auto redirect si ya hay sesión
 if (isPage("index.html") && getToken()) redirectTo("dashboard.html");
 
 // LOGIN
@@ -55,17 +54,19 @@ if (loginForm) {
 
         const emailEl = document.getElementById("email");
         const passEl = document.getElementById("password");
+        if (!emailEl || !passEl) {
+            alert("Error UI: faltan campos de login");
+            return;
+        }
 
         const res = await fetch(`${API}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: emailEl.value.trim(),
-                password: passEl.value
-            })
+            body: JSON.stringify({ email: emailEl.value.trim(), password: passEl.value })
         });
 
         const data = await readBody(res);
+
         if (res.ok && data && typeof data === "object" && data.token) {
             setToken(data.token);
             redirectTo("dashboard.html");
@@ -75,7 +76,7 @@ if (loginForm) {
     });
 }
 
-// REGISTRO
+// REGISTRO (si lo usas con teléfono)
 const registerForm = document.getElementById("registerForm");
 if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -84,6 +85,11 @@ if (registerForm) {
         const emailEl = document.getElementById("email");
         const telEl = document.getElementById("telefono");
         const passEl = document.getElementById("password");
+
+        if (!emailEl || !telEl || !passEl) {
+            alert("Error UI: faltan campos (email/teléfono/contraseña)");
+            return;
+        }
 
         const res = await fetch(`${API}/auth/registro`, {
             method: "POST",
@@ -96,6 +102,7 @@ if (registerForm) {
         });
 
         const data = await readBody(res);
+
         if (res.ok) {
             alert("Cuenta creada. Ahora inicia sesión.");
             redirectTo("index.html");
@@ -105,11 +112,12 @@ if (registerForm) {
     });
 }
 
-// LOGOUT button
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
 // PERFIL
+let perfilCache = null;
+
 async function cargarPerfil() {
     const res = await fetch(`${API}/usuarios/perfil`, { headers: authHeaders() });
     const data = await readBody(res);
@@ -117,23 +125,32 @@ async function cargarPerfil() {
     if (res.status === 401) { logout(); return null; }
     if (!res.ok) return null;
 
+    perfilCache = data;
+
     document.querySelectorAll("#saldo").forEach(el => (el.textContent = formatMoney(data.saldo)));
 
     const welcomeText = document.getElementById("welcomeText");
     if (welcomeText) {
+        const email = data?.email || "";
         const tel = data?.telefono ? ` • ${data.telefono}` : "";
-        welcomeText.textContent = `Conectado como ${data.email}${tel}`;
+        welcomeText.textContent = email ? `Conectado como ${email}${tel}` : "Bienvenido";
     }
 
     return data;
 }
 
-// TRANSACCIONES
+// TX
 let txCache = [];
 let currentFilter = "all";
 
+function isRecarga(tx, myUserId) {
+    const desc = (tx?.descripcion || "").toString().toUpperCase();
+    return (desc.includes("RECARGA")) || (tx?.emisorId === myUserId && tx?.receptorId === myUserId);
+}
+
 function classifyTx(tx, myUserId) {
     if (!tx || !myUserId) return "unknown";
+    if (isRecarga(tx, myUserId)) return "recarga";
     if (tx.emisorId === myUserId) return "sent";
     if (tx.receptorId === myUserId) return "received";
     return "unknown";
@@ -154,7 +171,7 @@ function renderStats(myUserId) {
     recv.textContent = String(r);
 }
 
-function renderTxList(myUserId, myTelefono) {
+function renderTxList(myUserId) {
     const list = document.getElementById("listaTransacciones");
     const empty = document.getElementById("emptyTx");
     if (!list) return;
@@ -181,20 +198,21 @@ function renderTxList(myUserId, myTelefono) {
 
     arr.forEach(t => {
         const type = classifyTx(t, myUserId);
-        const amountClass = type === "sent" ? "sent" : (type === "received" ? "received" : "");
-        const sign = type === "sent" ? "− " : (type === "received" ? "+ " : "");
 
-        const otherPhone =
-            type === "sent"
-                ? (t.telefonoReceptor || null)
-                : type === "received"
-                    ? (t.telefonoEmisor || null)
-                    : null;
+        // Monto: recarga se muestra como +
+        const sign = type === "sent" ? "− " : "+ ";
+        const amountClass =
+            type === "sent" ? "sent" :
+                (type === "received" || type === "recarga") ? "received" : "";
 
-        const title =
-            type === "sent" ? `Enviado a ${otherPhone ?? "usuario"}`
-                : type === "received" ? `Recibido de ${otherPhone ?? "usuario"}`
-                    : "Movimiento";
+        let title = "Movimiento";
+        if (type === "recarga") {
+            title = "Recarga de saldo";
+        } else if (type === "sent") {
+            title = `Enviado a ${t.telefonoReceptor ?? "usuario"}`;
+        } else if (type === "received") {
+            title = `Recibido de ${t.telefonoEmisor ?? "usuario"}`;
+        }
 
         const desc = t.descripcion ? String(t.descripcion) : "";
         const estado = t.estado ? String(t.estado) : "";
@@ -228,7 +246,7 @@ async function cargarTransacciones() {
     return txCache;
 }
 
-function wireFilters(myUserId, myTelefono) {
+function wireFilters(myUserId) {
     const buttons = document.querySelectorAll(".seg-btn");
     if (!buttons.length) return;
 
@@ -236,39 +254,110 @@ function wireFilters(myUserId, myTelefono) {
         btn.addEventListener("click", () => {
             buttons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-            currentFilter = btn.getAttribute("data-filter") || "all";
-            renderTxList(myUserId, myTelefono);
+
+            const f = btn.getAttribute("data-filter") || "all";
+            // si en el HTML no pusiste botón recarga, no pasa nada: queda en "all/sent/received"
+            currentFilter = f;
+            renderTxList(myUserId);
         });
     });
 }
 
-// Recarga (demo)
-async function agregarSaldoFlow() {
-    const raw = prompt("¿Cuánto deseas recargar? (solo pruebas)", "10000");
-    if (raw == null) return;
+// RECARGA MODAL
+function setupRecargaModal() {
+    const modal = document.getElementById("recargaModal");
+    const openBtn = document.getElementById("openRecargaBtn");
+    const closeBtn = document.getElementById("closeRecargaBtn");
+    const cancelBtn = document.getElementById("cancelRecargaBtn");
+    const confirmBtn = document.getElementById("confirmRecargaBtn");
+    const montoEl = document.getElementById("recargaMonto");
+    const errEl = document.getElementById("recargaError");
 
-    const monto = Number(raw);
-    if (!Number.isFinite(monto) || monto <= 0) {
-        alert("Monto inválido");
-        return;
+    if (!modal || !openBtn || !closeBtn || !cancelBtn || !confirmBtn || !montoEl) return;
+
+    function showError(msg) {
+        if (!errEl) return;
+        errEl.style.display = "block";
+        errEl.textContent = msg;
     }
 
-    const res = await fetch(`${API}/usuarios/agregar-saldo/${encodeURIComponent(monto)}`, {
-        method: "POST",
-        headers: authHeaders()
+    function clearError() {
+        if (!errEl) return;
+        errEl.style.display = "none";
+        errEl.textContent = "";
+    }
+
+    function open() {
+        clearError();
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+        setTimeout(() => montoEl.focus(), 50);
+    }
+
+    function close() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+    }
+
+    openBtn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    cancelBtn.addEventListener("click", close);
+
+    modal.addEventListener("click", (e) => {
+        const t = e.target;
+        if (t && t.getAttribute && t.getAttribute("data-close") === "true") close();
     });
 
-    const data = await readBody(res);
-    if (!res.ok) {
-        alert(errorMessage(data, "No se pudo recargar"));
-        return;
-    }
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("show")) close();
+    });
 
-    alert(typeof data === "string" ? data : "Saldo recargado");
-    await init();
+    montoEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            confirmBtn.click();
+        }
+    });
+
+    confirmBtn.addEventListener("click", async () => {
+        clearError();
+
+        const monto = Number(montoEl.value);
+        if (!Number.isFinite(monto) || monto <= 0) {
+            showError("Monto inválido. Debe ser mayor a 0.");
+            return;
+        }
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Recargando...";
+
+        try {
+            const res = await fetch(`${API}/usuarios/agregar-saldo/${encodeURIComponent(monto)}`, {
+                method: "POST",
+                headers: authHeaders()
+            });
+
+            const data = await readBody(res);
+
+            if (res.status === 401) { logout(); return; }
+
+            if (!res.ok) {
+                showError(errorMessage(data, "No se pudo recargar."));
+                return;
+            }
+
+            close();
+            await initDashboard();
+        } catch {
+            showError("Error de red. Intenta de nuevo.");
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Recargar";
+        }
+    });
 }
 
-// Transfer page
+// TRANSFER page (si existe)
 const transaccionForm = document.getElementById("transaccionForm");
 if (transaccionForm) {
     requireAuthOrRedirect();
@@ -276,17 +365,20 @@ if (transaccionForm) {
     const prefillBtn = document.getElementById("prefillBtn");
     if (prefillBtn) {
         prefillBtn.addEventListener("click", () => {
-            document.getElementById("telefonoDestino").value = "3123456789";
-            document.getElementById("monto").value = "5000";
-            document.getElementById("descripcion").value = "Ejemplo";
+            const tel = document.getElementById("telefonoDestino");
+            const monto = document.getElementById("monto");
+            const desc = document.getElementById("descripcion");
+            if (tel) tel.value = "3123456789";
+            if (monto) monto.value = "5000";
+            if (desc) desc.value = "Ejemplo";
         });
     }
 
     transaccionForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const telefonoDestino = document.getElementById("telefonoDestino").value.trim();
-        const montoValue = Number(document.getElementById("monto").value);
+        const telefonoDestino = document.getElementById("telefonoDestino")?.value?.trim() || "";
+        const montoValue = Number(document.getElementById("monto")?.value);
         const descValue = (document.getElementById("descripcion")?.value || "").trim();
 
         const res = await fetch(`${API}/transacciones/enviar`, {
@@ -300,6 +392,7 @@ if (transaccionForm) {
         });
 
         const data = await readBody(res);
+
         if (res.status === 401) { logout(); return; }
 
         if (res.ok) {
@@ -312,24 +405,26 @@ if (transaccionForm) {
     });
 }
 
-async function init() {
-    if (isPage("dashboard.html") || isPage("transfer.html")) {
-        requireAuthOrRedirect();
-    }
-
+// INIT
+async function initDashboard() {
     const perfil = await cargarPerfil();
+    await cargarTransacciones();
+    renderStats(perfil?.id);
+    wireFilters(perfil?.id);
+    renderTxList(perfil?.id);
+}
+
+async function init() {
+    if (isPage("dashboard.html") || isPage("transfer.html")) requireAuthOrRedirect();
+
+    const refreshBtn = document.getElementById("refreshBtn");
+    if (refreshBtn) refreshBtn.addEventListener("click", initDashboard);
+
+    setupRecargaModal();
+    await cargarPerfil();
 
     if (isPage("dashboard.html")) {
-        const refreshBtn = document.getElementById("refreshBtn");
-        if (refreshBtn) refreshBtn.addEventListener("click", init);
-
-        const addSaldoBtn = document.getElementById("addSaldoBtn");
-        if (addSaldoBtn) addSaldoBtn.addEventListener("click", agregarSaldoFlow);
-
-        await cargarTransacciones();
-        renderStats(perfil?.id);
-        wireFilters(perfil?.id, perfil?.telefono);
-        renderTxList(perfil?.id, perfil?.telefono);
+        await initDashboard();
     }
 }
 

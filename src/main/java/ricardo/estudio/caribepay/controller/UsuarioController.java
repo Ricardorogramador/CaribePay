@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import ricardo.estudio.caribepay.dtos.UsuarioResponseDTO;
 import ricardo.estudio.caribepay.models.Usuario;
+import ricardo.estudio.caribepay.services.RecargaService;
 import ricardo.estudio.caribepay.services.UsuarioService;
 
 import java.util.Optional;
@@ -16,9 +17,11 @@ import java.util.Optional;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final RecargaService recargaService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, RecargaService recargaService) {
         this.usuarioService = usuarioService;
+        this.recargaService = recargaService;
     }
 
     @GetMapping("/perfil")
@@ -30,8 +33,7 @@ public class UsuarioController {
             throw new IllegalArgumentException("Usuario no encontrado");
         }
 
-        UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(usuarioService.convertirAResponse(usuario.get()));
     }
 
     @GetMapping("/{id}")
@@ -42,26 +44,21 @@ public class UsuarioController {
             throw new IllegalArgumentException("Usuario no encontrado");
         }
 
-        UsuarioResponseDTO response = usuarioService.convertirAResponse(usuario.get());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(usuarioService.convertirAResponse(usuario.get()));
     }
 
     @PostMapping("/agregar-saldo/{monto}")
-    public ResponseEntity<String> agregarSaldo(@PathVariable Double monto, Authentication authentication) {
+    public ResponseEntity<UsuarioResponseDTO> agregarSaldo(@PathVariable Double monto, Authentication authentication) {
         if (monto == null || monto <= 0) {
             throw new IllegalArgumentException("Monto inválido");
         }
 
         String email = authentication.getName();
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
-        }
+        Usuario updated = recargaService.recargar(usuario.getId(), monto);
 
-        Double nuevoSaldo = usuario.get().getSaldo() + monto;
-        usuarioService.actualizarSaldo(usuario.get().getId(), nuevoSaldo);
-
-        return ResponseEntity.ok("Saldo agregado exitosamente. Nuevo saldo: " + nuevoSaldo);
+        return ResponseEntity.ok(usuarioService.convertirAResponse(updated));
     }
 }

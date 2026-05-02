@@ -7,7 +7,7 @@
     --muted: rgba(255,255,255,0.65);
     --muted-2: rgba(255,255,255,0.50);
 
-    --primary: #7c5cff;     /* morado suave */
+    --primary: #7c5cff;
     --primary-2: #5e46ff;
     --green: #37d67a;
     --red: #ff5c7a;
@@ -30,10 +30,9 @@ body {
 }
 
 a { color: inherit; }
-
 .app { min-height: 100%; }
 
-/* ---------- AUTH ---------- */
+/* AUTH */
 .auth-shell {
     min-height: 100%;
     display: grid;
@@ -76,24 +75,11 @@ a { color: inherit; }
     border-radius: 12px;
 }
 
-.brand-text h1 {
-    font-size: 18px;
-    margin: 0;
-}
-.brand-text p {
-    margin: 2px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-}
+.brand-text h1 { font-size: 18px; margin: 0; }
+.brand-text p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
 
 .form { display: grid; gap: 10px; }
-.form-wide { gap: 14px; }
-
-.label {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 6px;
-}
+.label { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
 .input {
     width: 100%;
@@ -133,7 +119,7 @@ a { color: inherit; }
 }
 .dot { opacity: 0.6; }
 
-/* ---------- LAYOUT ---------- */
+/* LAYOUT */
 .layout {
     min-height: 100vh;
     display: grid;
@@ -182,7 +168,7 @@ a { color: inherit; }
     border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ---------- MAIN ---------- */
+/* MAIN */
 .main { padding: 18px; }
 
 .topbar {
@@ -229,7 +215,6 @@ a { color: inherit; }
     letter-spacing: 0.2px;
     margin: 8px 0 10px;
 }
-.balance-amount.smaller { font-size: 28px; }
 
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -239,7 +224,7 @@ a { color: inherit; }
     margin: 12px 0;
 }
 
-/* ---------- BUTTONS ---------- */
+/* BUTTONS */
 .btn {
     appearance: none;
     border: 1px solid transparent;
@@ -250,7 +235,6 @@ a { color: inherit; }
     color: var(--text);
     background: rgba(255,255,255,0.06);
 }
-
 .btn:hover { background: rgba(255,255,255,0.08); }
 
 .btn-primary {
@@ -273,7 +257,7 @@ a { color: inherit; }
 
 .w-full { width: 100%; }
 
-/* ---------- PILLS ---------- */
+/* PILLS */
 .pill {
     font-size: 12px;
     color: var(--muted);
@@ -288,7 +272,7 @@ a { color: inherit; }
     background: rgba(55,214,122,0.08);
 }
 
-/* ---------- STATS ---------- */
+/* STATS */
 .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -303,12 +287,8 @@ a { color: inherit; }
 .stat-label { font-size: 12px; color: var(--muted); }
 .stat-value { font-size: 20px; font-weight: 800; margin-top: 6px; }
 
-/* ---------- SEGMENTED ---------- */
-.segmented {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+/* SEGMENTED */
+.segmented { display: flex; gap: 8px; flex-wrap: wrap; }
 .seg-btn {
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.04);
@@ -324,7 +304,7 @@ a { color: inherit; }
     background: rgba(124,92,255,0.10);
 }
 
-/* ---------- TX LIST ---------- */
+/* TX LIST */
 .tx-list {
     list-style: none;
     padding: 0;
@@ -341,16 +321,9 @@ a { color: inherit; }
     border: 1px solid rgba(255,255,255,0.10);
     background: rgba(255,255,255,0.04);
 }
-.tx-title {
-    font-weight: 700;
-    margin-bottom: 4px;
-}
+.tx-title { font-weight: 700; margin-bottom: 4px; }
 .tx-meta { color: var(--muted); font-size: 12px; }
-.tx-amount {
-    text-align: right;
-    font-weight: 800;
-    font-size: 16px;
-}
+.tx-amount { text-align: right; font-weight: 800; font-size: 16px; }
 .tx-amount.sent { color: rgba(255,92,122,0.95); }
 .tx-amount.received { color: rgba(55,214,122,0.95); }
 
@@ -362,19 +335,74 @@ a { color: inherit; }
     background: rgba(255,255,255,0.03);
 }
 
-/* ---------- FORMS (TRANSFER) ---------- */
-.row {
-    display: grid;
-    grid-template-columns: 1fr 180px;
-    gap: 12px;
-}
-.field { display: grid; gap: 8px; }
-
-/* ---------- RESPONSIVE ---------- */
+/* RESPONSIVE */
 @media (max-width: 920px) {
     .layout { grid-template-columns: 1fr; }
     .sidebar { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .grid { grid-template-columns: 1fr; }
     .span-2 { grid-column: auto; }
-    .row { grid-template-columns: 1fr; }
+}
+
+/* ---------------- MODAL (RECARGA) ---------------- */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 50;
+}
+.modal.show { display: block; }
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    position: relative;
+    width: min(520px, calc(100% - 32px));
+    margin: 10vh auto;
+    background: rgba(18, 26, 45, 0.92);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+}
+
+.modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.modal-body { padding-top: 4px; }
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.icon-btn {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.09); }
+
+.modal-error {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,92,122,0.25);
+    background: rgba(255,92,122,0.08);
+    color: rgba(255,255,255,0.90);
+    font-size: 13px;
 }

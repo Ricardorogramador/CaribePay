@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>CaribePay | Error</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app">
+<div class="auth-shell">
+    <div class="auth-card">
+        <div class="brand">
+            <div class="brand-mark">!</div>
+            <div class="brand-text">
+                <h1>Hubo un error</h1>
+                <p>No te preocupes, puedes volver al inicio.</p>
+            </div>
+        </div>
+
+        <div class="hint" id="errInfo">
+            Si esto pasa seguido, revisa el backend o vuelve a iniciar sesión.
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+            <a class="btn btn-primary" href="index.html">Ir al inicio</a>
+            <a class="btn btn-soft" href="dashboard.html">Ir al dashboard</a>
+        </div>
+
+        <div class="tiny muted" style="margin-top:10px;">
+            Tip: si fue un 403/401, probablemente tu sesión expiró.
+        </div>
+    </div>
+</div>
+
+<script>
+    // muestra algo útil si viene con query params
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    const path = params.get("path");
+    const el = document.getElementById("errInfo");
+    if (el && (code || path)) {
+        el.textContent = `Error ${code || ""} ${path ? "en " + path : ""}`.trim();
+    }
+</script>
+</body>
+</html>
