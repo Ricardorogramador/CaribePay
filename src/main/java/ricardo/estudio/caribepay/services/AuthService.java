@@ -55,13 +55,19 @@ public class AuthService {
                 throw new IllegalArgumentException("Email o contraseña incorrectos");
             }
 
+            // ✅ VALIDAR SI USUARIO ESTÁ ACTIVO
+            if (!usuario.get().getActivo()) {
+                log.warn("Login rechazado: usuario desactivado - {}", loginDTO.getEmail());
+                throw new IllegalArgumentException("Tu cuenta ha sido desactivada. Contacta al administrador.");
+            }
+
             if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.get().getPassword())) {
                 log.warn("Login fallido: contraseña incorrecta - {}", loginDTO.getEmail());
                 throw new IllegalArgumentException("Email o contraseña incorrectos");
             }
 
             String token = jwtService.generarToken(usuario.get().getEmail());
-            log.info("Login exitoso: {}", usuario.get().getEmail());
+            log.info("Login exitoso: {} (Role: {})", usuario.get().getEmail(), usuario.get().getRole());
 
             return new AuthResponseDTO(
                     token,

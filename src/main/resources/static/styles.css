@@ -861,3 +861,94 @@ a { color: inherit; }
         flex-wrap: wrap;
     }
 }
+
+/* ============== ADMIN PANEL ============== */
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 16px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.admin-table thead {
+    background: rgba(124, 92, 255, 0.1);
+    border-bottom: 2px solid rgba(124, 92, 255, 0.3);
+}
+
+.admin-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table tbody tr:hover {
+    background: rgba(124, 92, 255, 0.05);
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.estado-activo {
+    background: rgba(55, 214, 122, 0.2);
+    color: rgba(55, 214, 122, 0.95);
+}
+
+.estado-inactivo {
+    background: rgba(255, 92, 122, 0.2);
+    color: rgba(255, 92, 122, 0.95);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+.stat-large {
+    font-size: 36px !important;
+    margin-top: 12px !important;
+}
+
+.stat-green {
+    color: rgba(55, 214, 122, 0.95) !important;
+}
+
+.stat-red {
+    color: rgba(255, 92, 122, 0.95) !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .admin-table {
+        font-size: 12px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 8px 12px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+}

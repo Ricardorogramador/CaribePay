@@ -29,4 +29,10 @@ public class Usuario {
     private Double saldo;
 
     private LocalDateTime fechaCreacion;
+
+    private Role role; // ADMIN o USUARIO
+
+    private Boolean activo = true; // true = activo, false = desactivado
+
+    private LocalDateTime fechaDesactivacion;
 }

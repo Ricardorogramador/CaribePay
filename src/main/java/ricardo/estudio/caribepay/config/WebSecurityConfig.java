@@ -58,7 +58,8 @@ public class WebSecurityConfig {
                                 "/favicon.ico",
                                 "/assets/**",
                                 "/api/auth/**",
-                                "/error"
+                                "/error",
+                                "/api/cajero/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

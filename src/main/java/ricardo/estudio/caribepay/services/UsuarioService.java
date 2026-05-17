@@ -5,10 +5,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ricardo.estudio.caribepay.dtos.RegistroDTO;
 import ricardo.estudio.caribepay.dtos.UsuarioResponseDTO;
+import ricardo.estudio.caribepay.models.Role;
 import ricardo.estudio.caribepay.models.Usuario;
 import ricardo.estudio.caribepay.repository.UsuarioRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -47,9 +49,11 @@ public class UsuarioService {
         usuario.setPassword(passwordEncoder.encode(registroDTO.getPassword()));
         usuario.setSaldo(0.0);
         usuario.setFechaCreacion(LocalDateTime.now());
+        usuario.setRole(Role.USUARIO); // Por defecto es usuario
+        usuario.setActivo(true); // Por defecto activo
 
         Usuario guardado = usuarioRepository.save(usuario);
-        log.info("Usuario registrado exitosamente: {} (ID: {})", email, guardado.getId());
+        log.info("Usuario registrado exitosamente: {} (ID: {}, Role: {})", email, guardado.getId(), guardado.getRole());
 
         return guardado;
     }
@@ -90,5 +94,58 @@ public class UsuarioService {
             log.error("Usuario no encontrado para actualizar saldo: {}", usuarioId);
             throw new IllegalArgumentException("Usuario no encontrado");
         }
+    }
+
+    // ===== MÉTODOS PARA ADMIN =====
+
+    public List<Usuario> obtenerTodosLosUsuarios() {
+        log.info("Obteniendo lista de todos los usuarios");
+        return usuarioRepository.findAll();
+    }
+
+    public List<Usuario> obtenerUsuariosActivos() {
+        log.info("Obteniendo usuarios activos");
+        return usuarioRepository.findByActivo(true);
+    }
+
+    public List<Usuario> obtenerUsuariosDesactivados() {
+        log.info("Obteniendo usuarios desactivados");
+        return usuarioRepository.findByActivo(false);
+    }
+
+    public Usuario desactivarUsuario(String usuarioId) {
+        log.warn("Desactivando usuario: {}", usuarioId);
+
+        Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
+        if (usuario.isEmpty()) {
+            log.error("Usuario no encontrado para desactivar: {}", usuarioId);
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Usuario u = usuario.get();
+        u.setActivo(false);
+        u.setFechaDesactivacion(LocalDateTime.now());
+        usuarioRepository.save(u);
+
+        log.warn("Usuario desactivado: {} ({})", u.getEmail(), usuarioId);
+        return u;
+    }
+
+    public Usuario activarUsuario(String usuarioId) {
+        log.info("Activando usuario: {}", usuarioId);
+
+        Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
+        if (usuario.isEmpty()) {
+            log.error("Usuario no encontrado para activar: {}", usuarioId);
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Usuario u = usuario.get();
+        u.setActivo(true);
+        u.setFechaDesactivacion(null);
+        usuarioRepository.save(u);
+
+        log.info("Usuario activado: {} ({})", u.getEmail(), usuarioId);
+        return u;
     }
 }

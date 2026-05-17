@@ -48,6 +48,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -81,7 +82,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Test -->
+        <!-- Test - SIN VERSIÓN (usa la del parent) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

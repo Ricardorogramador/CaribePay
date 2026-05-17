@@ -44,7 +44,31 @@ function logout() {
     redirectTo("landing.html");
 }
 
-if (isPage("index.html") && getToken()) redirectTo("dashboard.html");
+// ✅ NUEVO: Obtener rol del usuario desde el servidor
+async function obtenerRolUsuario() {
+    try {
+        const res = await fetch(`${API}/usuarios/perfil`, { headers: authHeaders() });
+        if (!res.ok) return null;
+        const data = await readBody(res);
+        return data.role || null;
+    } catch (e) {
+        console.error("Error obteniendo rol:", e);
+        return null;
+    }
+}
+
+// ✅ NUEVO: Redirigir según el rol después de login
+if (isPage("index.html") && getToken()) {
+    (async () => {
+        const rol = await obtenerRolUsuario();
+        if (rol === "ADMIN") {
+            redirectTo("admin.html");
+        } else {
+            redirectTo("dashboard.html");
+        }
+    })();
+}
+
 if (isPage("landing.html") && getToken()) redirectTo("dashboard.html");
 
 // LOGIN
@@ -70,7 +94,14 @@ if (loginForm) {
 
         if (res.ok && data && typeof data === "object" && data.token) {
             setToken(data.token);
-            redirectTo("dashboard.html");
+
+            // ✅ NUEVO: Obtener rol y redirigir correctamente
+            const rol = await obtenerRolUsuario();
+            if (rol === "ADMIN") {
+                redirectTo("admin.html");
+            } else {
+                redirectTo("dashboard.html");
+            }
         } else {
             alert(errorMessage(data, "Credenciales incorrectos"));
         }
@@ -200,7 +231,6 @@ function renderTxList(myUserId) {
     arr.forEach(t => {
         const type = classifyTx(t, myUserId);
 
-        // Monto: recarga se muestra como +
         const sign = type === "sent" ? "− " : "+ ";
         const amountClass =
             type === "sent" ? "sent" :
