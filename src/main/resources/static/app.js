@@ -13,7 +13,7 @@ function isPage(name) { return window.location.pathname.endsWith(name); }
 function redirectTo(page) { window.location.href = page; }
 
 function requireAuthOrRedirect() {
-    if (!getToken()) redirectTo("index.html");
+    if (!getToken()) redirectTo("landing.html");
 }
 
 async function readBody(res) {
@@ -41,10 +41,11 @@ function formatDate(d) {
 
 function logout() {
     clearToken();
-    redirectTo("index.html");
+    redirectTo("landing.html");
 }
 
 if (isPage("index.html") && getToken()) redirectTo("dashboard.html");
+if (isPage("landing.html") && getToken()) redirectTo("dashboard.html");
 
 // LOGIN
 const loginForm = document.getElementById("loginForm");
@@ -71,12 +72,12 @@ if (loginForm) {
             setToken(data.token);
             redirectTo("dashboard.html");
         } else {
-            alert(errorMessage(data, "Credenciales incorrectas"));
+            alert(errorMessage(data, "Credenciales incorrectos"));
         }
     });
 }
 
-// REGISTRO (si lo usas con teléfono)
+// REGISTRO
 const registerForm = document.getElementById("registerForm");
 if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -207,11 +208,11 @@ function renderTxList(myUserId) {
 
         let title = "Movimiento";
         if (type === "recarga") {
-            title = "Recarga de saldo";
+            title = "🏧 Recarga de saldo";
         } else if (type === "sent") {
-            title = `Enviado a ${t.telefonoReceptor ?? "usuario"}`;
+            title = `📤 Enviado a ${t.telefonoReceptor ?? "usuario"}`;
         } else if (type === "received") {
-            title = `Recibido de ${t.telefonoEmisor ?? "usuario"}`;
+            title = `📥 Recibido de ${t.telefonoEmisor ?? "usuario"}`;
         }
 
         const desc = t.descripcion ? String(t.descripcion) : "";
@@ -256,104 +257,9 @@ function wireFilters(myUserId) {
             btn.classList.add("active");
 
             const f = btn.getAttribute("data-filter") || "all";
-            // si en el HTML no pusiste botón recarga, no pasa nada: queda en "all/sent/received"
             currentFilter = f;
             renderTxList(myUserId);
         });
-    });
-}
-
-// RECARGA MODAL
-function setupRecargaModal() {
-    const modal = document.getElementById("recargaModal");
-    const openBtn = document.getElementById("openRecargaBtn");
-    const closeBtn = document.getElementById("closeRecargaBtn");
-    const cancelBtn = document.getElementById("cancelRecargaBtn");
-    const confirmBtn = document.getElementById("confirmRecargaBtn");
-    const montoEl = document.getElementById("recargaMonto");
-    const errEl = document.getElementById("recargaError");
-
-    if (!modal || !openBtn || !closeBtn || !cancelBtn || !confirmBtn || !montoEl) return;
-
-    function showError(msg) {
-        if (!errEl) return;
-        errEl.style.display = "block";
-        errEl.textContent = msg;
-    }
-
-    function clearError() {
-        if (!errEl) return;
-        errEl.style.display = "none";
-        errEl.textContent = "";
-    }
-
-    function open() {
-        clearError();
-        modal.classList.add("show");
-        modal.setAttribute("aria-hidden", "false");
-        setTimeout(() => montoEl.focus(), 50);
-    }
-
-    function close() {
-        modal.classList.remove("show");
-        modal.setAttribute("aria-hidden", "true");
-    }
-
-    openBtn.addEventListener("click", open);
-    closeBtn.addEventListener("click", close);
-    cancelBtn.addEventListener("click", close);
-
-    modal.addEventListener("click", (e) => {
-        const t = e.target;
-        if (t && t.getAttribute && t.getAttribute("data-close") === "true") close();
-    });
-
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && modal.classList.contains("show")) close();
-    });
-
-    montoEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            confirmBtn.click();
-        }
-    });
-
-    confirmBtn.addEventListener("click", async () => {
-        clearError();
-
-        const monto = Number(montoEl.value);
-        if (!Number.isFinite(monto) || monto <= 0) {
-            showError("Monto inválido. Debe ser mayor a 0.");
-            return;
-        }
-
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = "Recargando...";
-
-        try {
-            const res = await fetch(`${API}/usuarios/agregar-saldo/${encodeURIComponent(monto)}`, {
-                method: "POST",
-                headers: authHeaders()
-            });
-
-            const data = await readBody(res);
-
-            if (res.status === 401) { logout(); return; }
-
-            if (!res.ok) {
-                showError(errorMessage(data, "No se pudo recargar."));
-                return;
-            }
-
-            close();
-            await initDashboard();
-        } catch {
-            showError("Error de red. Intenta de nuevo.");
-        } finally {
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = "Recargar";
-        }
     });
 }
 
@@ -396,7 +302,7 @@ if (transaccionForm) {
         if (res.status === 401) { logout(); return; }
 
         if (res.ok) {
-            alert("Transferencia realizada");
+            alert("✅ Transferencia realizada exitosamente");
             transaccionForm.reset();
             redirectTo("dashboard.html");
         } else {
@@ -420,7 +326,6 @@ async function init() {
     const refreshBtn = document.getElementById("refreshBtn");
     if (refreshBtn) refreshBtn.addEventListener("click", initDashboard);
 
-    setupRecargaModal();
     await cargarPerfil();
 
     if (isPage("dashboard.html")) {

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>CaribePay | Cajero</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app">
+<div class="cajero-container">
+    <header class="topbar-simple">
+        <div class="topbar-content">
+            <a href="landing.html" class="btn btn-soft">← Volver</a>
+            <h1 class="page-title">Cajero Automático</h1>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+
+    <main class="cajero-main">
+        <section class="cajero-grid">
+            <!-- Panel Izquierdo: Recarga -->
+            <div class="cajero-panel">
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <div class="card-title">💰 Recargar Saldo</div>
+                            <div class="card-muted">Ingresa tu teléfono y monto</div>
+                        </div>
+                    </div>
+
+                    <form id="cajeroRecargaForm" class="form">
+                        <div class="field">
+                            <label class="label" for="cajeroTelefono">Teléfono (Colombia)</label>
+                            <input
+                                    class="input"
+                                    type="tel"
+                                    id="cajeroTelefono"
+                                    placeholder="3123456789 o +573123456789"
+                                    required
+                            />
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="cajeroMonto">Monto (COP)</label>
+                            <input
+                                    class="input"
+                                    type="number"
+                                    id="cajeroMonto"
+                                    step="1000"
+                                    min="1000"
+                                    value="10000"
+                                    required
+                            />
+                            <div class="tiny muted" style="margin-top: 6px;">Mínimo: $1.000</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="cajeroEmail">Email (para contacto)</label>
+                            <input
+                                    class="input"
+                                    type="email"
+                                    id="cajeroEmail"
+                                    placeholder="tu@correo.com"
+                                    required
+                            />
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="cajeroDescripcion">Descripción (opcional)</label>
+                            <input
+                                    class="input"
+                                    type="text"
+                                    id="cajeroDescripcion"
+                                    placeholder="Ej: Depósito cliente"
+                            />
+                        </div>
+
+                        <button class="btn btn-primary btn-block" type="submit">Recargar Ahora</button>
+                    </form>
+
+                    <div class="cajero-error" id="cajeroError" style="display: none;"></div>
+                    <div class="cajero-success" id="cajeroSuccess" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Panel Derecho: Info -->
+            <div class="cajero-panel">
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <div class="card-title">ℹ️ Información</div>
+                            <div class="card-muted">Cómo usar el cajero</div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h4>Pasos para recargar:</h4>
+                        <ol class="info-list">
+                            <li>Ingresa tu teléfono registrado</li>
+                            <li>Selecciona el monto a recargar</li>
+                            <li>Proporciona tu email de contacto</li>
+                            <li>Haz clic en "Recargar Ahora"</li>
+                            <li>¡Listo! Tu saldo será acreditado</li>
+                        </ol>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="info-section">
+                        <h4>Preguntas frecuentes:</h4>
+                        <div class="faq">
+                            <div class="faq-item">
+                                <strong>¿Cuál es el mínimo para recargar?</strong>
+                                <p>$1.000 COP</p>
+                            </div>
+                            <div class="faq-item">
+                                <strong>¿Hay comisión?</strong>
+                                <p>No, las recargas son sin comisión.</p>
+                            </div>
+                            <div class="faq-item">
+                                <strong>¿Cuánto tarda?</strong>
+                                <p>Instantáneo, máximo 5 segundos.</p>
+                            </div>
+                            <div class="faq-item">
+                                <strong>¿Necesito cuenta?</strong>
+                                <p>Tu teléfono debe estar registrado en CaribePay.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="info-section">
+                        <p class="muted">
+                            ¿No tienes cuenta?
+                            <a class="link" href="registro.html">Regístrate aquí</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script src="cajero.js"></script>
+</body>
+</html>

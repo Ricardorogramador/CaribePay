@@ -406,3 +406,458 @@ a { color: inherit; }
     color: rgba(255,255,255,0.90);
     font-size: 13px;
 }
+
+
+/* ============== LANDING PAGE ============== */
+
+.landing {
+    min-height: 100vh;
+    background: radial-gradient(900px 500px at 70% 10%, rgba(124, 92, 255, 0.22), transparent 60%),
+    radial-gradient(700px 450px at 10% 30%, rgba(55, 214, 122, 0.10), transparent 60%),
+    radial-gradient(900px 650px at 30% 95%, rgba(124, 92, 255, 0.12), transparent 65%),
+    var(--bg);
+}
+
+.landing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header/Navbar */
+.landing-header {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(11, 18, 32, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.landing-header .landing-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.landing-header .brand {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.landing-header .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.9), rgba(55, 214, 122, 0.35));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.landing-header .brand-text h1 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.landing-nav {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--muted);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--text);
+}
+
+.landing-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.landing-actions .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+}
+
+/* Hero Section */
+.hero {
+    padding: 80px 0;
+    display: flex;
+    align-items: center;
+}
+
+.hero .landing-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0;
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(55, 214, 122, 0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: 14px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.hero-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-placeholder {
+    width: 300px;
+    height: 300px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.2), rgba(55, 214, 122, 0.15));
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    font-size: 120px;
+}
+
+/* Servicios Section */
+.servicios {
+    padding: 80px 0;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.section-title {
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 60px;
+}
+
+.servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.servicio-card {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.servicio-card:hover {
+    border-color: rgba(124, 92, 255, 0.4);
+    background: rgba(124, 92, 255, 0.08);
+    transform: translateY(-4px);
+}
+
+.servicio-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.servicio-card h3 {
+    font-size: 18px;
+    margin: 0 0 12px;
+}
+
+.servicio-card p {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Cajero Section */
+.cajero-section {
+    padding: 80px 0;
+}
+
+.cajero-card {
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.15), rgba(55, 214, 122, 0.1));
+    border: 2px solid rgba(124, 92, 255, 0.3);
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.cajero-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.cajero-card h2 {
+    font-size: 32px;
+    margin: 0 0 16px;
+}
+
+.cajero-card p {
+    font-size: 16px;
+    color: var(--muted);
+    margin: 0 0 30px;
+}
+
+/* Footer */
+.landing-footer {
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 60px 0 20px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+
+.footer-section p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section li {
+    margin-bottom: 8px;
+}
+
+.footer-section a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-section a:hover {
+    color: var(--text);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted-2);
+    font-size: 12px;
+}
+
+/* ============== CAJERO PAGE ============== */
+
+.cajero-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar-simple {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(11, 18, 32, 0.8);
+    backdrop-filter: blur(10px);
+    sticky: top;
+}
+
+.topbar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.cajero-main {
+    flex: 1;
+    padding: 40px 20px;
+}
+
+.cajero-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.cajero-panel {
+    display: flex;
+}
+
+.cajero-error {
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 92, 122, 0.3);
+    background: rgba(255, 92, 122, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.cajero-success {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(55, 214, 122, 0.3);
+    background: rgba(55, 214, 122, 0.1);
+    color: rgba(55, 214, 122, 0.95);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Info Section */
+.info-section {
+    margin-bottom: 24px;
+}
+
+.info-section h4 {
+    font-size: 16px;
+    margin: 0 0 12px;
+}
+
+.info-list {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.info-list li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.faq {
+    display: grid;
+    gap: 12px;
+}
+
+.faq-item {
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.faq-item strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.faq-item p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .landing-header .landing-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .landing-nav {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .landing-actions {
+        flex-direction: column;
+    }
+
+    .hero .landing-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .hero-title {
+        font-size: 32px;
+    }
+
+    .hero-subtitle {
+        font-size: 16px;
+    }
+
+    .hero-placeholder {
+        width: 200px;
+        height: 200px;
+    }
+
+    .placeholder-icon {
+        font-size: 80px;
+    }
+
+    .servicios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cajero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-content {
+        flex-wrap: wrap;
+    }
+}

@@ -56,12 +56,10 @@
 
                 <div class="actions">
                     <a class="btn btn-primary" href="transfer.html">Enviar</a>
-                    <!-- Recargar abre modal -->
-                    <button class="btn btn-soft" id="openRecargaBtn" type="button">Recargar</button>
                 </div>
 
                 <div class="tiny muted">
-                    La recarga es para pruebas (demo).
+                    Gestiona tu dinero de forma segura.
                 </div>
             </div>
 
@@ -116,36 +114,6 @@
             </div>
         </section>
     </main>
-</div>
-
-<!-- MODAL RECARGA -->
-<div class="modal" id="recargaModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close="true"></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="recargaTitle">
-        <div class="modal-head">
-            <div>
-                <div class="card-title" id="recargaTitle">Recargar saldo</div>
-                <div class="card-muted">Demo: agrega dinero a tu cuenta</div>
-            </div>
-            <button class="icon-btn" id="closeRecargaBtn" type="button" aria-label="Cerrar">✕</button>
-        </div>
-
-        <div class="modal-body">
-            <label class="label" for="recargaMonto">Monto a recargar (COP)</label>
-            <input class="input" type="number" id="recargaMonto" min="1" step="1" value="10000" />
-
-            <div class="tiny muted" style="margin-top:10px;">
-                Esto llama a <span style="opacity:.9;">POST /api/usuarios/agregar-saldo/{monto}</span>
-            </div>
-
-            <div class="modal-error" id="recargaError" style="display:none;"></div>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" id="cancelRecargaBtn" type="button">Cancelar</button>
-            <button class="btn btn-primary" id="confirmRecargaBtn" type="button">Recargar</button>
-        </div>
-    </div>
 </div>
 
 <script src="app.js"></script>
