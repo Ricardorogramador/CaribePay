@@ -1,5 +1,6 @@
 package ricardo.estudio.caribepay.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import ricardo.estudio.caribepay.models.Usuario;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -24,33 +26,51 @@ public class AuthService {
     }
 
     public AuthResponseDTO registrar(RegistroDTO registroDTO) {
-        Usuario usuario = usuarioService.registrarUsuario(registroDTO);
-        String token = jwtService.generarToken(usuario.getEmail());
+        log.info("Iniciando registro: {}", registroDTO.getEmail());
 
-        return new AuthResponseDTO(
-                token,
-                usuario.getEmail(),
-                "Usuario registrado exitosamente"
-        );
+        try {
+            Usuario usuario = usuarioService.registrarUsuario(registroDTO);
+            String token = jwtService.generarToken(usuario.getEmail());
+
+            log.info("Registro exitoso: {}", usuario.getEmail());
+            return new AuthResponseDTO(
+                    token,
+                    usuario.getEmail(),
+                    "Usuario registrado exitosamente"
+            );
+        } catch (Exception e) {
+            log.error("Error en registro: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public AuthResponseDTO login(LoginDTO loginDTO) {
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(loginDTO.getEmail());
+        log.info("Intento de login: {}", loginDTO.getEmail());
 
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Email o contraseña incorrectos");
+        try {
+            Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(loginDTO.getEmail());
+
+            if (usuario.isEmpty()) {
+                log.warn("Login fallido: usuario no encontrado - {}", loginDTO.getEmail());
+                throw new IllegalArgumentException("Email o contraseña incorrectos");
+            }
+
+            if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.get().getPassword())) {
+                log.warn("Login fallido: contraseña incorrecta - {}", loginDTO.getEmail());
+                throw new IllegalArgumentException("Email o contraseña incorrectos");
+            }
+
+            String token = jwtService.generarToken(usuario.get().getEmail());
+            log.info("Login exitoso: {}", usuario.get().getEmail());
+
+            return new AuthResponseDTO(
+                    token,
+                    usuario.get().getEmail(),
+                    "Login exitoso"
+            );
+        } catch (Exception e) {
+            log.error("Error en login: {}", e.getMessage());
+            throw e;
         }
-
-        if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.get().getPassword())) {
-            throw new IllegalArgumentException("Email o contraseña incorrectos");
-        }
-
-        String token = jwtService.generarToken(usuario.get().getEmail());
-
-        return new AuthResponseDTO(
-                token,
-                usuario.get().getEmail(),
-                "Login exitoso"
-        );
     }
 }
