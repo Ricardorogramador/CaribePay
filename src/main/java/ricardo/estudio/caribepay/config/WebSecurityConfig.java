@@ -32,7 +32,8 @@ public class WebSecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://localhost:8080"
+                "http://localhost:8080",
+                "http://127.0.0.1:8080"
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -58,6 +59,7 @@ public class WebSecurityConfig {
                                 "/favicon.ico",
                                 "/assets/**",
                                 "/api/auth/**",
+                                "/api/redis/transacciones/**",  // ← AGREGAR ESTO
                                 "/error",
                                 "/api/cajero/**"
                         ).permitAll()

@@ -37,6 +37,12 @@ public class TransaccionRedisController {
             @RequestParam Long monto,
             @RequestParam(required = false, defaultValue = "Transferencia") String descripcion) {
 
+        // Limpiar espacios y caracteres especiales, PERO MANTENER EL +
+        telefonoOrigen = limpiarTelefonoConPlus(telefonoOrigen);
+        telefonoDestino = limpiarTelefonoConPlus(telefonoDestino);
+
+        log.info("📞 Transacción: {} → {} | ${}", telefonoOrigen, telefonoDestino, monto);
+
         // Usar la versión con sync automático
         TransaccionRedisDTO tx = transaccionRedisService.realizarTransaccionConSync(
                 telefonoOrigen, telefonoDestino, monto, descripcion
@@ -50,10 +56,30 @@ public class TransaccionRedisController {
     }
 
     /**
+     * Limpiar teléfono manteniendo el +
+     */
+    private String limpiarTelefonoConPlus(String telefono) {
+        String limpio = telefono
+                .trim()
+                .replaceAll(" ", "")         // Quita espacios
+                .replaceAll("-", "")         // Quita guiones
+                .replaceAll("\\(", "")       // Quita paréntesis
+                .replaceAll("\\)", "");
+
+        // Asegurar que empiece con +
+        if (!limpio.startsWith("+")) {
+            limpio = "+" + limpio;
+        }
+
+        return limpio;
+    }
+
+    /**
      * GET: Obtener saldo de un usuario
      */
     @GetMapping("/saldo/{telefono}")
     public Map<String, Object> obtenerSaldo(@PathVariable String telefono) {
+        telefono = limpiarTelefonoConPlus(telefono);
         Long saldo = transaccionRedisService.obtenerSaldo(telefono);
         Map<String, Object> response = new HashMap<>();
         response.put("telefono", telefono);
@@ -68,6 +94,7 @@ public class TransaccionRedisController {
     public Map<String, Object> establecerSaldo(
             @PathVariable String telefono,
             @RequestParam Long saldo) {
+        telefono = limpiarTelefonoConPlus(telefono);
         transaccionRedisService.establecerSaldo(telefono, saldo);
         Map<String, Object> response = new HashMap<>();
         response.put("telefono", telefono);
