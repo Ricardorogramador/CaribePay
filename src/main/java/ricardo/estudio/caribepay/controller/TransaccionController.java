@@ -1,109 +1,160 @@
 package ricardo.estudio.caribepay.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import ricardo.estudio.caribepay.dtos.TransaccionDTO;
-import ricardo.estudio.caribepay.dtos.TransaccionResponseDTO;
+import ricardo.estudio.caribepay.dtos.TransaccionRedisDTO;
 import ricardo.estudio.caribepay.models.Usuario;
-import ricardo.estudio.caribepay.services.TransaccionService;
-import ricardo.estudio.caribepay.services.UsuarioService;
+import ricardo.estudio.caribepay.repository.UsuarioRepository;
+import ricardo.estudio.caribepay.services.TransaccionRedisService;
+import ricardo.estudio.caribepay.services.TransaccionSyncService;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/transacciones")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class TransaccionController {
 
-    private final TransaccionService transaccionService;
-    private final UsuarioService usuarioService;
+    @Autowired
+    private TransaccionRedisService transaccionRedisService;
 
-    public TransaccionController(TransaccionService transaccionService, UsuarioService usuarioService) {
-        this.transaccionService = transaccionService;
-        this.usuarioService = usuarioService;
-    }
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private TransaccionSyncService transaccionSyncService;
+
+    /**
+     * POST: Enviar dinero (usuario autenticado)
+     * Flujo: JWT → Redis (instantáneo) → MongoDB (async)
+     */
     @PostMapping("/enviar")
-    public ResponseEntity<TransaccionResponseDTO> crearTransaccion(
-            @Valid @RequestBody TransaccionDTO transaccionDTO,
-            Authentication authentication
-    ) {
-        if (authentication == null) {
-            throw new IllegalArgumentException("No autenticado");
+    public Map<String, Object> enviarDinero(
+            @RequestBody TransaccionDTO dto,
+            Authentication authentication) {
+
+        // 1️ Obtener usuario autenticado desde JWT
+        String emailOrigen = authentication.getName();
+        Usuario usuarioOrigen = usuarioRepository.findByEmail(emailOrigen)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + emailOrigen));
+
+        String telefonoOrigen = usuarioOrigen.getTelefono();
+        String telefonoDestino = normalizarTelefono(dto.getTelefonoDestino());
+        Long monto = dto.getMonto();
+        String descripcion = dto.getDescripcion() != null ? dto.getDescripcion() : "Transferencia";
+
+        // 2️ Validaciones
+        if (monto == null || monto <= 0) {
+            return crearRespuestaError("El monto debe ser mayor a 0");
         }
 
-        String email = authentication.getName();
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
-
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
+        if (telefonoOrigen.equals(telefonoDestino)) {
+            return crearRespuestaError("No puedes enviar dinero a tu mismo número");
         }
 
-        TransaccionResponseDTO response =
-                transaccionService.crearTransaccion(usuario.get().getId(), transaccionDTO);
+        // 3️ Verificar destinatario existe
+        Usuario usuarioDestino = usuarioRepository.findByTelefono(telefonoDestino)
+                .orElse(null);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if (usuarioDestino == null) {
+            return crearRespuestaError("Destinatario no encontrado");
+        }
+
+        // 4️ Realizar transacción (Redis primero)
+        log.info(" [{}] → [{}] | ${}", emailOrigen, usuarioDestino.getEmail(), monto);
+
+        TransaccionRedisDTO tx = transaccionRedisService.realizarTransaccionConSync(
+                telefonoOrigen, telefonoDestino, monto, descripcion
+        );
+
+        // 5️ Si es exitosa, auditar en MongoDB (async)
+        if (tx.getEstado().equals("COMPLETADA")) {
+            log.info(" Transacción {} completada - sync a MongoDB", tx.getId());
+        }
+
+        // 6️ Responder
+        Map<String, Object> response = new HashMap<>();
+        response.put("exitoso", tx.getEstado().equals("COMPLETADA"));
+        response.put("transaccion", tx);
+        response.put("mensaje", tx.getEstado().equals("COMPLETADA") ?
+                "Dinero enviado ✓" : tx.getDescripcion());
+        response.put("timestamp", System.currentTimeMillis());
+
+        return response;
     }
 
+    /**
+     * GET: Obtener saldo del usuario autenticado
+     */
+    @GetMapping("/saldo")
+    public Map<String, Object> obtenerSaldoUsuario(Authentication authentication) {
+        String email = authentication.getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Long saldo = transaccionRedisService.obtenerSaldo(usuario.getTelefono());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuario", email);
+        response.put("telefono", usuario.getTelefono());
+        response.put("saldo", saldo);
+        response.put("timestamp", System.currentTimeMillis());
+
+        return response;
+    }
+
+    /**
+     * GET: Historial de transacciones del usuario
+     */
     @GetMapping("/historial")
-    public ResponseEntity<List<TransaccionResponseDTO>> obtenerHistorial(Authentication authentication) {
-        if (authentication == null) {
-            throw new IllegalArgumentException("No autenticado");
-        }
+    public Map<String, Object> obtenerHistorial(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
 
         String email = authentication.getName();
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
-        }
 
-        List<TransaccionResponseDTO> transacciones =
-                transaccionService.obtenerTransaccionesDelUsuario(usuario.get().getId());
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuario", email);
+        response.put("telefono", usuario.getTelefono());
+        response.put("page", page);
+        response.put("size", size);
+        response.put("transacciones", new Object[0]);
+        response.put("total", 0);
 
-        return ResponseEntity.ok(transacciones);
+        return response;
     }
 
-    @GetMapping("/enviadas")
-    public ResponseEntity<List<TransaccionResponseDTO>> obtenerTransaccionesEnviadas(Authentication authentication) {
-        if (authentication == null) {
-            throw new IllegalArgumentException("No autenticado");
+    /**
+     * Normalizar teléfono: +57XXXXXXXXXX
+     */
+    private String normalizarTelefono(String telefono) {
+        String limpio = telefono
+                .trim()
+                .replaceAll(" ", "")
+                .replaceAll("-", "")
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", "");
+
+        if (!limpio.startsWith("+")) {
+            limpio = "+" + limpio;
         }
 
-        String email = authentication.getName();
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
-
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
-        }
-
-        List<TransaccionResponseDTO> transacciones =
-                transaccionService.obtenerTransaccionesEnviadas(usuario.get().getId());
-
-        return ResponseEntity.ok(transacciones);
+        return limpio;
     }
 
-    @GetMapping("/recibidas")
-    public ResponseEntity<List<TransaccionResponseDTO>> obtenerTransaccionesRecibidas(Authentication authentication) {
-        if (authentication == null) {
-            throw new IllegalArgumentException("No autenticado");
-        }
-
-        String email = authentication.getName();
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorEmail(email);
-
-        if (usuario.isEmpty()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
-        }
-
-        List<TransaccionResponseDTO> transacciones =
-                transaccionService.obtenerTransaccionesRecibidas(usuario.get().getId());
-
-        return ResponseEntity.ok(transacciones);
+    private Map<String, Object> crearRespuestaError(String mensaje) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("exitoso", false);
+        response.put("mensaje", mensaje);
+        response.put("timestamp", System.currentTimeMillis());
+        return response;
     }
 }

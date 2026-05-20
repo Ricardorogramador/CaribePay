@@ -55,7 +55,7 @@ public class AuthService {
                 throw new IllegalArgumentException("Email o contraseña incorrectos");
             }
 
-            // ✅ VALIDAR SI USUARIO ESTÁ ACTIVO
+            //  Valida si el usuario esta activo
             if (!usuario.get().getActivo()) {
                 log.warn("Login rechazado: usuario desactivado - {}", loginDTO.getEmail());
                 throw new IllegalArgumentException("Tu cuenta ha sido desactivada. Contacta al administrador.");

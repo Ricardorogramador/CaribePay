@@ -44,7 +44,7 @@ function logout() {
     redirectTo("landing.html");
 }
 
-// ✅ NUEVO: Obtener rol del usuario desde el servidor
+// NUEVO: Obtener rol del usuario desde el servidor
 async function obtenerRolUsuario() {
     try {
         const res = await fetch(`${API}/usuarios/perfil`, { headers: authHeaders() });
@@ -57,7 +57,7 @@ async function obtenerRolUsuario() {
     }
 }
 
-// ✅ NUEVO: Redirigir según el rol después de login
+// NUEVO: Redirigir según el rol después de login
 if (isPage("index.html") && getToken()) {
     (async () => {
         const rol = await obtenerRolUsuario();
@@ -95,7 +95,7 @@ if (loginForm) {
         if (res.ok && data && typeof data === "object" && data.token) {
             setToken(data.token);
 
-            // ✅ NUEVO: Obtener rol y redirigir correctamente
+            // NUEVO: Obtener rol y redirigir correctamente
             const rol = await obtenerRolUsuario();
             if (rol === "ADMIN") {
                 redirectTo("admin.html");
@@ -238,11 +238,11 @@ function renderTxList(myUserId) {
 
         let title = "Movimiento";
         if (type === "recarga") {
-            title = "🏧 Recarga de saldo";
+            title = "Recarga de saldo";
         } else if (type === "sent") {
-            title = `📤 Enviado a ${t.telefonoReceptor ?? "usuario"}`;
+            title = `Enviado a ${t.telefonoReceptor ?? "usuario"}`;
         } else if (type === "received") {
-            title = `📥 Recibido de ${t.telefonoEmisor ?? "usuario"}`;
+            title = `Recibido de ${t.telefonoEmisor ?? "usuario"}`;
         }
 
         const desc = t.descripcion ? String(t.descripcion) : "";
@@ -332,7 +332,7 @@ if (transaccionForm) {
         if (res.status === 401) { logout(); return; }
 
         if (res.ok) {
-            alert("✅ Transferencia realizada exitosamente");
+            alert("Transferencia realizada exitosamente");
             transaccionForm.reset();
             redirectTo("dashboard.html");
         } else {

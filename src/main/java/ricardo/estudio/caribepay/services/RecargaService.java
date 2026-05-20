@@ -31,10 +31,10 @@ public class RecargaService {
         }
 
         try {
-            // 1) Incremento atómico del saldo
+            // 1 Incremento atómico del saldo
             Usuario updated = saldoService.incrementarSaldo(usuarioId, monto);
 
-            // 2) Registrar movimiento de recarga
+            // 2 Registrar movimiento de recarga
             Transaccion tx = new Transaccion();
             tx.setEmisorId(usuarioId);
             tx.setReceptorId(usuarioId);

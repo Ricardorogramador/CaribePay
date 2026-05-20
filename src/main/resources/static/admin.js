@@ -39,24 +39,24 @@ let adminUsuariosCache = [];
 // ==================== FUNCIONES PRINCIPALES ====================
 
 async function adminCargarEstadisticas() {
-    console.log("📊 Cargando estadísticas...");
+    console.log("Cargando estadísticas...");
     try {
         const res = await fetch(`${API}/admin/estadisticas`, { headers: adminAuthHeaders() });
 
         if (res.status === 403) {
-            console.error("❌ Sin permisos de admin");
+            console.error("Sin permisos de admin");
             alert("No tienes permisos de administrador");
             adminRedirectTo("landing.html");
             return;
         }
 
         if (!res.ok) {
-            console.error("❌ Error:", res.status);
+            console.error("Error:", res.status);
             return;
         }
 
         const data = await adminReadBody(res);
-        console.log("✅ Estadísticas:", data);
+        console.log("Estadísticas:", data);
 
         const totalUsuariosEl = document.getElementById("totalUsuarios");
         const usuariosActivosEl = document.getElementById("usuariosActivos");
@@ -69,58 +69,58 @@ async function adminCargarEstadisticas() {
         if (saldoTotalEl) saldoTotalEl.textContent = adminFormatMoney(data.saldoTotalCirculante || 0);
 
     } catch (e) {
-        console.error("❌ Error cargando estadísticas:", e);
+        console.error("Error cargando estadísticas:", e);
     }
 }
 
 async function adminCargarUsuarios(filtro = "todos") {
-    console.log("👥 Cargando usuarios:", filtro);
+    console.log("Cargando usuarios:", filtro);
     try {
         let url = `${API}/admin/usuarios`;
         if (filtro === "activos") url += "/activos";
         else if (filtro === "desactivados") url += "/desactivados";
 
-        console.log("📡 URL:", url);
+        console.log("URL:", url);
         const res = await fetch(url, { headers: adminAuthHeaders() });
 
-        console.log("📡 Status:", res.status);
+        console.log("Status:", res.status);
 
         if (!res.ok) {
-            console.error("❌ Error:", res.status);
+            console.error("Error:", res.status);
             const error = await adminReadBody(res);
-            console.error("❌ Error detail:", error);
+            console.error("Error detail:", error);
             return;
         }
 
         adminUsuariosCache = await adminReadBody(res);
-        console.log("✅ Usuarios cargados:", adminUsuariosCache.length);
+        console.log("Usuarios cargados:", adminUsuariosCache.length);
 
         adminRenderizarTabla(adminUsuariosCache);
 
     } catch (e) {
-        console.error("❌ Error cargando usuarios:", e);
+        console.error("Error cargando usuarios:", e);
     }
 }
 
 function adminRenderizarTabla(usuarios) {
     const tbody = document.getElementById("usuariosTableBody");
     if (!tbody) {
-        console.error("❌ No se encontró tbody");
+        console.error("No se encontró tbody");
         return;
     }
 
     tbody.innerHTML = "";
 
     if (!usuarios || usuarios.length === 0) {
-        console.warn("⚠️ No hay usuarios");
+        console.warn("No hay usuarios");
         tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">No hay usuarios</td></tr>';
         return;
     }
 
-    console.log("📝 Renderizando", usuarios.length, "usuarios");
+    console.log("Renderizando", usuarios.length, "usuarios");
 
     usuarios.forEach(u => {
-        const estado = u.activo ? "✅ Activo" : "❌ Desactivado";
+        const estado = u.activo ? "Activo" : "Desactivado";
         const estadoClass = u.activo ? "estado-activo" : "estado-inactivo";
         const btnTexto = u.activo ? "Desactivar" : "Activar";
         const btnClase = u.activo ? "btn-soft" : "btn-primary";
@@ -153,14 +153,14 @@ async function adminCambiarEstado(usuarioId, activo) {
         });
 
         if (res.ok) {
-            alert("✅ Operación exitosa");
+            alert("Operación exitosa");
             adminCargarUsuarios(adminFiltroActual);
             adminCargarEstadisticas();
         } else {
-            alert("❌ Error al cambiar estado");
+            alert("Error al cambiar estado");
         }
     } catch (e) {
-        console.error("❌ Error:", e);
+        console.error("Error:", e);
         alert("Error de conexión");
     }
 }
@@ -168,7 +168,7 @@ async function adminCambiarEstado(usuarioId, activo) {
 // ==================== FUNCIONES DE NAVEGACIÓN ====================
 
 function adminMostrarEstadisticas() {
-    console.log("📊 Mostrando estadísticas");
+    console.log("Mostrando estadísticas");
     const est = document.getElementById("seccionEstadisticas");
     const usr = document.getElementById("seccionUsuarios");
     if (est) est.style.display = "grid";
@@ -177,7 +177,7 @@ function adminMostrarEstadisticas() {
 }
 
 function adminMostrarUsuarios() {
-    console.log("👥 Mostrando usuarios");
+    console.log("Mostrando usuarios");
     const est = document.getElementById("seccionEstadisticas");
     const usr = document.getElementById("seccionUsuarios");
     if (est) est.style.display = "none";
@@ -186,13 +186,13 @@ function adminMostrarUsuarios() {
 }
 
 function adminFiltrarUsuarios(filtro) {
-    console.log("🔍 Filtrando por:", filtro);
+    console.log("Filtrando por:", filtro);
     adminFiltroActual = filtro;
     adminCargarUsuarios(filtro);
 }
 
 function adminRecargarDatos() {
-    console.log("🔄 Recargando datos...");
+    console.log("Recargando datos...");
     adminCargarEstadisticas();
     adminCargarUsuarios(adminFiltroActual);
 }
@@ -200,7 +200,7 @@ function adminRecargarDatos() {
 // ==================== INICIALIZACIÓN ====================
 
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("🚀 Inicializando panel de admin...");
+    console.log("Inicializando panel de admin...");
 
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {

@@ -40,7 +40,7 @@ public class TransaccionService {
         log.info("Iniciando transacción: emisor={}, teléfono destino={}, monto={}",
                 emisorId, transaccionDTO.getTelefonoDestino(), transaccionDTO.getMonto());
 
-        // 1) Obtener y validar emisor
+        // 1 Obtener y validar emisor
         Optional<Usuario> emisorOpt = usuarioService.obtenerUsuarioPorId(emisorId);
         if (emisorOpt.isEmpty()) {
             log.error("Usuario emisor no encontrado: {}", emisorId);
@@ -48,7 +48,7 @@ public class TransaccionService {
         }
         Usuario emisor = emisorOpt.get();
 
-        // 2) Normalizar teléfono y obtener receptor
+        // 2 Normalizar teléfono y obtener receptor
         String telefonoDestinoNorm = phoneService.normalizarCO(transaccionDTO.getTelefonoDestino());
         Optional<Usuario> receptorOpt = usuarioService.obtenerUsuarioPorTelefonoNormalizado(telefonoDestinoNorm);
         if (receptorOpt.isEmpty()) {
@@ -57,13 +57,13 @@ public class TransaccionService {
         }
         Usuario receptor = receptorOpt.get();
 
-        // 3) Validar que no sea auto-transferencia
+        // 3 Validar que no sea auto-transferencia
         if (emisor.getId().equals(receptor.getId())) {
             log.warn("Intento de auto-transferencia por usuario: {}", emisorId);
             throw new IllegalArgumentException("No puedes enviar dinero a ti mismo");
         }
 
-        // 4) Validar monto
+        // 4 Validar monto
         if (transaccionDTO.getMonto() == null || transaccionDTO.getMonto() <= 0) {
             log.warn("Monto inválido en transacción: {}", transaccionDTO.getMonto());
             throw new IllegalArgumentException("Monto inválido");
@@ -71,7 +71,7 @@ public class TransaccionService {
 
         double monto = transaccionDTO.getMonto();
 
-        // 5) ✅ TRANSFERENCIA ATÓMICA (sin race condition)
+        // 5 transferencia atomica
         log.debug("Ejecutando transferencia atómica: {} -> {} (${}", emisorId, receptor.getId(), monto);
         boolean transferenciExitosa = saldoService.transferirSaldoAtomico(emisorId, receptor.getId(), monto);
 
@@ -80,7 +80,7 @@ public class TransaccionService {
             throw new IllegalArgumentException("Saldo insuficiente");
         }
 
-        // 6) Registrar transacción en BD
+        // 6 Registrar transacción en BD
         Transaccion transaccion = new Transaccion();
         transaccion.setEmisorId(emisor.getId());
         transaccion.setReceptorId(receptor.getId());

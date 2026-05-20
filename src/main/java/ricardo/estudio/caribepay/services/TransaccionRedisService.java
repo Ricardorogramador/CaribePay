@@ -33,7 +33,6 @@ public class TransaccionRedisService {
         this.redisService = redisService;
     }
 
-    // ===== OPERACIONES DE SALDO =====
 
     public Long obtenerSaldo(String telefono) {
         String key = SALDO_PREFIX + telefono;
@@ -60,7 +59,6 @@ public class TransaccionRedisService {
         log.debug("Saldo decrementado para {}: -{}", telefono, monto);
     }
 
-    // ===== OPERACIONES DE TRANSACCIONES =====
 
     public synchronized TransaccionRedisDTO realizarTransaccion(
             String telefonoOrigen,
@@ -108,13 +106,13 @@ public class TransaccionRedisService {
             redisService.increment(CONTADOR_TX, 1);
 
             long duracion = System.currentTimeMillis() - startTime;
-            log.info("✅ TX EXITOSA [{}ms]: {} → {} | ${} | ID: {}",
+            log.info("TX EXITOSA [{}ms]: {} → {} | ${} | ID: {}",
                     duracion, telefonoOrigen, telefonoDestino, monto, idTransaccion);
 
             return transaccion;
 
         } catch (Exception e) {
-            log.error("❌ Error en transacción: {}", e.getMessage(), e);
+            log.error("Error en transacción: {}", e.getMessage(), e);
             return crearTransaccionFallida(idTransaccion, telefonoOrigen, telefonoDestino,
                     monto, "Error: " + e.getMessage());
         }
@@ -143,12 +141,13 @@ public class TransaccionRedisService {
         List<Object> cola = obtenerColaPendiente();
         if (!cola.isEmpty()) {
             transaccionSyncService.sincronizarLote(cola);
-            limpiarColaPendiente(); // ✅ TransaccionRedisService limpia su propia cola
+            limpiarColaPendiente(); //TransaccionRedisService limpia su propia cola
         }
     }
 
     private TransaccionRedisDTO crearTransaccionFallida(String id, String origen, String destino,
-                                                        Long monto, String razon) {
+                                                        Long monto,
+                                                        String razon) {
         return new TransaccionRedisDTO(
                 id, origen, destino, monto,
                 "FALLIDA", LocalDateTime.now(), razon
@@ -193,6 +192,6 @@ public class TransaccionRedisService {
 
     public void resetearTodos() {
         redisTemplate.getConnectionFactory().getConnection().flushAll();
-        log.warn("⚠️ Redis completamente reseteado");
+        log.warn("Redis completamente reseteado");
     }
 }

@@ -1,5 +1,3 @@
-// NO DECLARAR API aquí, ya está en app.js
-
 const cajeroRecargaForm = document.getElementById("cajeroRecargaForm");
 const cajeroError = document.getElementById("cajeroError");
 const cajeroSuccess = document.getElementById("cajeroSuccess");
@@ -15,7 +13,7 @@ if (cajeroRecargaForm) {
         const email = document.getElementById("cajeroEmail")?.value?.trim() || "";
         const descripcion = (document.getElementById("cajeroDescripcion")?.value || "").trim();
 
-        console.log("🏧 Iniciando recarga en cajero...");
+        console.log("Iniciando recarga en cajero...");
         console.log("Teléfono:", telefono);
         console.log("Monto:", montoValue);
         console.log("Email:", email);
@@ -41,7 +39,7 @@ if (cajeroRecargaForm) {
         submitBtn.textContent = "Procesando...";
 
         try {
-            console.log("📤 Enviando solicitud a:", `${API}/cajero/recargar`);
+            console.log("Enviando solicitud a:", `${API}/cajero/recargar`);
 
             const res = await fetch(`${API}/cajero/recargar`, {
                 method: "POST",
@@ -54,15 +52,15 @@ if (cajeroRecargaForm) {
                 })
             });
 
-            console.log("📡 Status recibido:", res.status);
+            console.log("Status recibido:", res.status);
 
             const data = await readBody(res);
-            console.log("📡 Respuesta del servidor:", data);
+            console.log("Respuesta del servidor:", data);
 
             if (res.ok && data.exitoso) {
-                console.log("✅ Recarga exitosa");
+                console.log("Recarga exitosa");
                 showSuccess(
-                    `✅ Recarga exitosa de ${formatMoney(montoValue)}\n` +
+                    `Recarga exitosa de ${formatMoney(montoValue)}\n` +
                     `Teléfono: ${telefono}\n` +
                     `Nuevo saldo: ${formatMoney(data.nuevoSaldo || 0)}\n` +
                     `Referencia: ${data.id || "N/A"}`
@@ -70,12 +68,12 @@ if (cajeroRecargaForm) {
                 cajeroRecargaForm.reset();
                 document.getElementById("cajeroMonto").value = "10000";
             } else {
-                console.error("❌ Recarga fallida:", data);
+                console.error("Recarga fallida:", data);
                 const mensaje = data.mensaje || data.message || "No se pudo procesar la recarga";
                 showError(mensaje);
             }
         } catch (err) {
-            console.error("❌ Error de conexión:", err);
+            console.error("Error de conexión:", err);
             showError("Error de conexión. Verifica tu conexión e intenta de nuevo.");
         } finally {
             submitBtn.disabled = false;
@@ -89,7 +87,7 @@ function showError(msg) {
         cajeroError.style.display = "block";
         cajeroError.textContent = msg;
         cajeroError.scrollIntoView({ behavior: "smooth", block: "center" });
-        console.error("🔴 Error mostrado:", msg);
+        console.error("Error mostrado:", msg);
     }
 }
 
@@ -98,7 +96,7 @@ function showSuccess(msg) {
         cajeroSuccess.style.display = "block";
         cajeroSuccess.innerHTML = msg.replace(/\n/g, "<br>");
         cajeroSuccess.scrollIntoView({ behavior: "smooth", block: "center" });
-        console.log("🟢 Éxito mostrado:", msg);
+        console.log("Éxito mostrado:", msg);
         setTimeout(() => {
             cajeroSuccess.style.display = "none";
         }, 5000);

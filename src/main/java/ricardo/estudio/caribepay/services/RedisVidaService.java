@@ -22,10 +22,10 @@ public class RedisVidaService {
     public boolean isRedisAvailable() {
         try {
             redisTemplate.getConnectionFactory().getConnection().ping();
-            log.info("✅ Redis disponible");
+            log.info("Redis disponible");
             return true;
         } catch (Exception e) {
-            log.error("❌ Redis no disponible: {}", e.getMessage());
+            log.error("Redis no disponible: {}", e.getMessage());
             return false;
         }
     }

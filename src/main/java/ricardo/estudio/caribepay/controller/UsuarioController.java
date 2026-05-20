@@ -38,7 +38,6 @@ public class UsuarioController {
 
         Usuario u = usuario.get();
 
-        // ✅ CORREGIDO: Incluir role, activo y fechaDesactivacion
         UsuarioResponseDTO respuesta = new UsuarioResponseDTO(
                 u.getId(),
                 u.getEmail(),

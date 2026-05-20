@@ -43,7 +43,7 @@ public class TransaccionRedisController {
 
         log.info("📞 Transacción: {} → {} | ${}", telefonoOrigen, telefonoDestino, monto);
 
-        // Usar la versión con sync automático
+
         TransaccionRedisDTO tx = transaccionRedisService.realizarTransaccionConSync(
                 telefonoOrigen, telefonoDestino, monto, descripcion
         );

@@ -15,7 +15,7 @@ public interface TransaccionRepository extends MongoRepository<Transaccion, Stri
 
     List<Transaccion> findByEmisorIdOrReceptorId(String emisorId, String receptorId);
 
-    // Nuevas queries para Redis sync
+    // queries para Redis sync
     List<Transaccion> findByTelefonoOrigen(String telefono);
 
     List<Transaccion> findByTelefonoDestino(String telefono);

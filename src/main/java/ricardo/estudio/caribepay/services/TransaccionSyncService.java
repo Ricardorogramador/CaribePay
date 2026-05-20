@@ -22,7 +22,7 @@ public class TransaccionSyncService {
         this.transaccionRepository = transaccionRepository;
     }
 
-    // ✅ Método interno SIN @Async — lógica real de guardado
+    // Método interno SIN @Async — lógica real de guardado
     private void guardarEnMongo(TransaccionRedisDTO txRedis) {
         Transaccion tx = new Transaccion();
         tx.setId(txRedis.getId());
@@ -34,17 +34,17 @@ public class TransaccionSyncService {
         tx.setTimestampSync(LocalDateTime.now());
         tx.setDescripcion(txRedis.getDescripcion());
         transaccionRepository.save(tx);
-        log.debug("✅ TX sincronizada a MongoDB: {}", txRedis.getId());
+        log.debug("TX sincronizada a MongoDB: {}", txRedis.getId());
     }
 
-    // ✅ Async para llamadas individuales desde producción
+    // Async para llamadas individuales desde producción
     @Async
     public CompletableFuture<Void> sincronizarTransaccion(TransaccionRedisDTO txRedis) {
         try {
             guardarEnMongo(txRedis); // delega al método interno
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            log.error("❌ Error sincronizando TX {} a MongoDB: {}", txRedis.getId(), e.getMessage());
+            log.error("Error sincronizando TX {} a MongoDB: {}", txRedis.getId(), e.getMessage());
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -60,7 +60,7 @@ public class TransaccionSyncService {
             colaPendiente.forEach(tx -> {
                 if (tx instanceof TransaccionRedisDTO) {
                     try {
-                        guardarEnMongo((TransaccionRedisDTO) tx); // ✅ directo, sin @Async
+                        guardarEnMongo((TransaccionRedisDTO) tx);
                     } catch (Exception e) {
                         log.error("Error en batch sync: {}", e.getMessage());
                     }
@@ -68,7 +68,7 @@ public class TransaccionSyncService {
             });
 
             long duracion = System.currentTimeMillis() - startTime;
-            log.info("✅ Lote de {} transacciones sincronizado en {}ms",
+            log.info("Lote de {} transacciones sincronizado en {}ms",
                     colaPendiente.size(), duracion);
 
             return CompletableFuture.completedFuture(null);
@@ -79,17 +79,17 @@ public class TransaccionSyncService {
         }
     }
 
-    // resto de métodos igual...
+
     public List<Transaccion> recuperarTransaccionesDeMongoDb(String telefono) {
         try {
-            log.warn("⚠️ Redis no disponible, recuperando desde MongoDB: {}", telefono);
+            log.warn("Redis no disponible, recuperando desde MongoDB: {}", telefono);
             List<Transaccion> txOrigen = transaccionRepository.findByTelefonoOrigen(telefono);
             List<Transaccion> txDestino = transaccionRepository.findByTelefonoDestino(telefono);
             txOrigen.addAll(txDestino);
-            log.info("✅ Recuperadas {} transacciones de MongoDB", txOrigen.size());
+            log.info("Recuperadas {} transacciones de MongoDB", txOrigen.size());
             return txOrigen;
         } catch (Exception e) {
-            log.error("❌ Error recuperando de MongoDB: {}", e.getMessage());
+            log.error("Error recuperando de MongoDB: {}", e.getMessage());
             return List.of();
         }
     }

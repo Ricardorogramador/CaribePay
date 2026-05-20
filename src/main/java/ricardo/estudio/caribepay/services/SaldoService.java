@@ -21,7 +21,7 @@ public class SaldoService {
     }
 
     /**
-     * Incrementa saldo de forma ATÓMICA usando $inc y devuelve el usuario actualizado.
+     * Incrementa saldo de forma atomica usando $inc y devuelve el usuario actualizado.
      */
     public Usuario incrementarSaldo(String usuarioId, double monto) {
         if (monto <= 0) {
@@ -57,7 +57,7 @@ public class SaldoService {
             throw new IllegalArgumentException("Monto inválido");
         }
 
-        // ✅ ATÓMICO: Validar saldo suficiente Y descontar en una sola operación
+        // Validar saldo suficiente Y descontar en una sola operación
         Query query = new Query(Criteria.where("_id").is(usuarioId).and("saldo").gte(monto));
         Update update = new Update().inc("saldo", -monto);
 
@@ -98,7 +98,7 @@ public class SaldoService {
 
         log.debug("Iniciando transferencia atómica: {} → {} (${}", emisorId, receptorId, monto);
 
-        // ✅ PASO 1: Descontar del emisor ATÓMICAMENTE con validación
+        // 1 Descontar del emisor ATÓMICAMENTE con validación
         Query queryEmisor = new Query(
                 Criteria.where("_id").is(emisorId).and("saldo").gte(monto)
         );
@@ -112,13 +112,13 @@ public class SaldoService {
                 queryEmisor, updateEmisor, optionsEmisor, Usuario.class
         );
 
-        // ❌ Si falló descontar (saldo insuficiente o usuario no existe), retornar false
+        // Si falla descontar (saldo insuficiente o usuario no existe), retornar false
         if (emisorActualizado == null) {
             log.warn("Transferencia rechazada: usuario {} no existe o saldo insuficiente", emisorId);
             return false;
         }
 
-        // ✅ PASO 2: Acreditar al receptor ATÓMICAMENTE
+        // 2 Acreditar al receptor atomicamente
         Query queryReceptor = new Query(Criteria.where("_id").is(receptorId));
         Update updateReceptor = new Update().inc("saldo", monto);
 
@@ -130,7 +130,7 @@ public class SaldoService {
                 queryReceptor, updateReceptor, optionsReceptor, Usuario.class
         );
 
-        // ⚠️ Si falla acreditar (receptor no existe), esto es un error grave
+        // Si falla acreditar (receptor no existe), esto es un error grave
         if (receptorActualizado == null) {
             log.error("ERROR CRÍTICO: Saldo descontado de {} pero receptor {} no existe. Reversión necesaria.", emisorId, receptorId);
             // Revertir: acreditar nuevamente al emisor

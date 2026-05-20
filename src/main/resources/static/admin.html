@@ -11,23 +11,21 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-mark sm">👑</div>
+      <div class="brand-mark sm"></div>
       <div class="sidebar-brand-text">
         <div class="sidebar-title">CaribePay</div>
         <div class="sidebar-subtitle">Admin</div>
       </div>
     </div>
-
     <nav class="nav">
-      <a class="nav-item active" href="javascript:adminMostrarEstadisticas()">📊 Panel</a>
-      <a class="nav-item" href="javascript:adminMostrarUsuarios()">👥 Usuarios</a>
+      <a class="nav-item active" href="javascript:adminMostrarEstadisticas()">Panel</a>
+      <a class="nav-item" href="javascript:adminMostrarUsuarios()">Usuarios</a>
+      <a class="nav-item" href="javascript:adminMostrarReporte()">Reporte BI</a>
     </nav>
-
     <div class="sidebar-footer">
       <button class="btn btn-ghost w-full" id="logoutBtn">Cerrar sesión</button>
     </div>
   </aside>
-
   <!-- Main -->
   <main class="main">
     <header class="topbar">
@@ -35,7 +33,6 @@
         <h2 class="page-title">Panel de Administración</h2>
         <p class="page-subtitle" id="welcomeText">Bienvenido admin</p>
       </div>
-
       <div class="topbar-right">
         <button class="btn btn-soft" onclick="adminRecargarDatos()">Actualizar</button>
       </div>
@@ -49,21 +46,18 @@
           <div class="stat-value stat-large" id="totalUsuarios">0</div>
         </div>
       </div>
-
       <div class="card">
         <div class="stat">
           <div class="stat-label">Usuarios Activos</div>
           <div class="stat-value stat-large stat-green" id="usuariosActivos">0</div>
         </div>
       </div>
-
       <div class="card">
         <div class="stat">
           <div class="stat-label">Usuarios Desactivados</div>
           <div class="stat-value stat-large stat-red" id="usuariosDesactivados">0</div>
         </div>
       </div>
-
       <div class="card">
         <div class="stat">
           <div class="stat-label">Saldo Circulante</div>
@@ -86,7 +80,6 @@
             <button class="btn btn-sm btn-soft" onclick="adminFiltrarUsuarios('desactivados')">Desactivados</button>
           </div>
         </div>
-
         <div class="table-container">
           <table class="admin-table">
             <thead>
@@ -108,10 +101,40 @@
         </div>
       </div>
     </section>
+
+    <!-- REPORTE POWER BI -->
+    <section id="seccionReporte" class="grid" style="display: none;">
+      <div class="card span-2">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Reporte Power BI</div>
+            <div class="card-muted">Análisis interactivo del proyecto</div>
+          </div>
+        </div>
+        <div style="position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; border-radius: 8px;">
+          <iframe
+                  title="ProyectoDeAula.pbix"
+                  src="https://app.powerbi.com/view?r=eyJrIjoiYjZjODU4MDktNjVmZS00NjI1LWFkYzUtNDcyYjg1YjQyNmQ2IiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9"
+                  frameborder="0"
+                  allowFullScreen="true"
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
-
 <script src="app.js"></script>
 <script src="admin.js"></script>
+<script>
+  function adminMostrarReporte() {
+    document.getElementById('seccionEstadisticas').style.display = 'none';
+    document.getElementById('seccionUsuarios').style.display = 'none';
+    document.getElementById('seccionReporte').style.display = '';
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+</script>
 </body>
 </html>

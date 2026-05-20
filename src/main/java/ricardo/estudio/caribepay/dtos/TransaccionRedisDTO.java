@@ -13,7 +13,7 @@ public class TransaccionRedisDTO {
     private String telefonoOrigen;
     private String telefonoDestino;
     private Long monto;
-    private String estado; // PENDIENTE, COMPLETADA, FALLIDA
+    private String estado;
     private LocalDateTime timestamp;
     private String descripcion;
 }
