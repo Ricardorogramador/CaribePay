@@ -73,9 +73,9 @@ public class TransaccionService {
 
         // 5 transferencia atomica
         log.debug("Ejecutando transferencia atómica: {} -> {} (${}", emisorId, receptor.getId(), monto);
-        boolean transferenciExitosa = saldoService.transferirSaldoAtomico(emisorId, receptor.getId(), monto);
+        boolean transferenciaExitosa = saldoService.transferirSaldoAtomico(emisorId, receptor.getId(), monto);
 
-        if (!transferenciExitosa) {
+        if (!transferenciaExitosa) {
             log.warn("Transferencia rechazada: saldo insuficiente. Emisor: {}, Monto requerido: ${}", emisorId, monto);
             throw new IllegalArgumentException("Saldo insuficiente");
         }
@@ -84,19 +84,34 @@ public class TransaccionService {
         Transaccion transaccion = new Transaccion();
         transaccion.setEmisorId(emisor.getId());
         transaccion.setReceptorId(receptor.getId());
+        transaccion.setTelefonoOrigen(emisor.getTelefono());
+        transaccion.setTelefonoDestino(receptor.getTelefono());
         transaccion.setMonto(monto);
+        transaccion.setMontoLong(Math.round(monto));
         transaccion.setDescripcion(
                 (transaccionDTO.getDescripcion() == null || transaccionDTO.getDescripcion().isBlank())
                         ? "Transferencia"
                         : transaccionDTO.getDescripcion().trim()
         );
         transaccion.setFecha(LocalDateTime.now());
+        transaccion.setTimestamp(LocalDateTime.now());
         transaccion.setEstado("COMPLETADA");
 
-        Transaccion guardada = transaccionRepository.save(transaccion);
-        log.info("Transacción registrada exitosamente: ID={}, Monto=${}, Estado=COMPLETADA", guardada.getId(), monto);
-
-        return convertirAResponse(guardada);
+        try {
+            Transaccion guardada = transaccionRepository.save(transaccion);
+            log.info("Transacción registrada exitosamente: ID={}, Monto=${}, Estado=COMPLETADA", guardada.getId(), monto);
+            return convertirAResponse(guardada);
+        } catch (Exception e) {
+            log.error("Error guardando transacción. Revirtiendo saldos: {} <- {} (${})",
+                    emisor.getId(), receptor.getId(), monto, e);
+            try {
+                saldoService.transferirSaldoAtomico(receptor.getId(), emisor.getId(), monto);
+            } catch (Exception revertError) {
+                log.error("Error al revertir saldos tras fallo de persistencia. Emisor={}, Receptor={}, Monto=${}",
+                        emisor.getId(), receptor.getId(), monto, revertError);
+            }
+            throw new RuntimeException("No se pudo guardar la transacción en la base de datos", e);
+        }
     }
 
     public List<TransaccionResponseDTO> obtenerTransaccionesDelUsuario(String usuarioId) {
